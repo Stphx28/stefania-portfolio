@@ -3,7 +3,7 @@ export const projects = [
     id: 'network-security-lab',
     title: 'Network Security Lab: Kali & Windows',
     featured: true,
-    thumbnail: '/images/network-lab-1.png',
+    thumbnail: import.meta.env.BASE_URL + 'images/network-lab-1.png',
     shortDescription:
       'Isolated VirtualBox lab for practicing network reconnaissance and traffic interception with Nmap and Burp Suite.',
     tags: ['Networking', 'Nmap', 'Burp Suite', 'Python', 'VirtualBox'],
@@ -20,7 +20,7 @@ Windows 10 (target host): 10.10.10.20
 On Linux, the address was applied at the interface level with ip addr add 10.10.10.10/24 dev eth0, followed by bringing the interface up (ip link set eth0 up). On Windows, the static IP was configured through the adapter's TCP/IPv4 properties. VirtualBox Guest Additions were also installed on the Kali guest (vboxguest kernel module confirmed loaded via lsmod) to enable clipboard sharing and shared folders for file transfer between host and guest during the exercise.
 
 Connectivity between the two VMs was verified bidirectionally using ICMP (ping) prior to any service testing, confirming Layer 3 reachability across the host-only segment before layering application traffic on top.`,
-        screenshots: ['/images/network-lab-1.png'],
+        screenshots: [import.meta.env.BASE_URL + 'images/network-lab-1.png'],
       },
       {
         heading: '2. The Target Service — demo_service.py',
@@ -84,7 +84,7 @@ This confirms full visibility into client-to-server traffic at the application l
     id: 'des-elgamal-cryptography',
     title: 'Cryptographic Algorithms: DES, ElGamal, Lenstra ECM & Shamir',
     featured: false,
-    thumbnail: '/images/des-1.png',
+    thumbnail: import.meta.env.BASE_URL + 'images/des-1.png',
     shortDescription:
       "Python implementations of DES (with a meet-in-the-middle attack on Double DES), the ElGamal cryptosystem, Lenstra's elliptic curve factorization, and Shamir's secret sharing scheme.",
     tags: ['Cryptography', 'DES', 'ElGamal', 'RSA', 'Lenstra ECM', 'Shamir', 'Secret Sharing', 'Python', 'Symmetric Encryption', 'Public-Key Encryption'],
@@ -96,7 +96,7 @@ This confirms full visibility into client-to-server traffic at the application l
 PC1 and PC2 drive the key schedule: PC1 compresses the original 64-bit key down to 56 bits (dropping the 8 parity bits), and PC2 compresses the rotated 56-bit key into each 48-bit round subkey. E is the expansion permutation, stretching the 32-bit right half of the block up to 48 bits so it can be XORed with the subkey. P is the final round permutation applied after substitution, responsible for diffusion across the block. IP and IP_INV are the initial and final bit permutations applied once at the very start and end of encryption — a legacy step from DES's original hardware design that provides no cryptographic strength on its own.
 
 The SHIFT array (1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1) defines how many positions the two 28-bit key halves rotate left before each of the 16 rounds, which is what makes every round's subkey different.`,
-        screenshots: [],
+        
       },
       {
         heading: '2. Key Schedule & Round Function',
@@ -105,7 +105,7 @@ The SHIFT array (1,1,2,2,2,2,2,2,1,2,2,2,2,2,2,1) defines how many positions the
 des_round() implements a single Feistel round: the 32-bit right half is expanded to 48 bits via E, XORed with the round subkey, passed through S-box substitution, and permuted through P before being XORed with the left half. In this implementation, sbox_substitution() is simplified to return the first 32 bits unchanged, rather than performing the real DES non-linear S-box lookups. This is an important simplification: the real S-boxes are what give DES its confusion and resistance to linear/differential cryptanalysis. Here, the round function is effectively linear, which makes the cipher considerably weaker than real DES and, as the attack results show, makes different keys collide to the same ciphertext.
 
 des_encrypt_block() and des_decrypt_block() both apply the initial permutation IP, run the 16 Feistel rounds (decrypt simply applies the subkeys in reverse order — a core property of the Feistel structure), and finish with the final permutation IP_INV.`,
-        screenshots: [],
+        
       },
       {
         heading: '3. Double DES and the Meet-in-the-Middle Attack',
@@ -119,7 +119,7 @@ Double DES is famously vulnerable to a meet-in-the-middle (MITM) attack, and tha
 A match means E_K1(plaintext) = D_K2(ciphertext), which recovers both keys. This reduces the attack from roughly 2^112 operations (brute-forcing both keys together) down to roughly 2 × |keyspace| operations plus a lookup — the classic time-memory tradeoff that breaks Double DES in practice (and is the reason real-world systems use Triple DES, 3DES, with three keys and a different EDE structure instead).
 
 To keep the demo runnable, generate_special_keys() restricts the keyspace to 256 "repeated-byte" keys (each byte 0–255 repeated 8 times to fill 64 bits) instead of the full 2^56 DES keyspace — enough to prove the attack works without running for days.`,
-        screenshots: [],
+        
       },
       {
         heading: '4. DES Results',
@@ -130,7 +130,7 @@ Ciphertext: 0,1,0,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0,0,1,0,1,1,0,1,0,1,0,1,0,
 Match found — K1: all-1 bits, K2: all-0 bits.
 
 Note the recovered keys are swapped relative to the original (K1 was all-0, K2 was all-1 in the test setup), yet the attack still reports "Keys recovered successfully." This is a direct consequence of the simplified S-box: because sbox_substitution() doesn't perform real non-linear substitution, the round function loses enough diffusion that multiple distinct key pairs can produce the exact same ciphertext for this plaintext — a collision. The meet-in-the-middle search is working correctly; it just found a different valid key pair that happens to produce an identical ciphertext, which is itself a useful illustration of why the real DES S-boxes are essential for the algorithm's security, not just an implementation detail.`,
-        screenshots: ['/images/des-1.png'],
+        screenshots: [import.meta.env.BASE_URL + 'images/des-1.png'],
       },
       {
         heading: '5. ElGamal — Domain Parameter Generation',
@@ -139,7 +139,7 @@ Note the recovered keys are swapped relative to the original (K1 was all-0, K2 w
 gen_prim() generates a random odd number of the requested bit length and tests it for primality with sympy's isprime(), retrying until a prime is found. gen_params() then builds a safe-prime-style setup: it picks a 160-bit prime q, and sets p = 2q + 1, retrying until p is also prime. This construction (p = 2q + 1, with q prime) makes p a safe prime, and the multiplicative group mod p has a subgroup of prime order q — this is the Schnorr-style subgroup construction, chosen because it avoids small-subgroup attacks that can leak bits of the private key in naive ElGamal implementations.
 
 To find a generator alpha of that order-q subgroup, the code computes t = (p-1)/q and repeatedly raises a random element g to the power t mod p, discarding the result if it comes out to 1 (which would mean g produced a trivial subgroup). The output log confirms the resulting parameters: a 161-bit p and 160-bit q satisfying p = 2q + 1, exactly as designed.`,
-        screenshots: [],
+        
       },
       {
         heading: '6. ElGamal — Key Generation, Encryption & Decryption',
@@ -148,7 +148,7 @@ To find a generator alpha of that order-q subgroup, the code computes t = (p-1)/
 encrypt() implements the core ElGamal operation. For each encryption, a fresh random ephemeral value r is chosen in [1, q) — this randomness is essential; reusing r across two messages would let an attacker recover both plaintexts via a simple ratio. The ciphertext is the pair (gamma, delta), where gamma = alpha^r mod p acts as a one-time public key for this message, and delta = msg * beta^r mod p masks the message by multiplying it with a shared secret (beta^r) that only someone who knows a can reconstruct.
 
 decrypt() reverses this: it recomputes the shared secret as gamma^a mod p (note alpha^(ra) = beta^r, since beta = alpha^a — this is the Diffie-Hellman-style shared secret both sides can derive independently), inverts it modulo p using inv_mod(), and multiplies by delta to recover the original message. inv_mod() computes the modular inverse via Fermat's Little Theorem (a^(p-2) mod p), which works because p is prime.`,
-        screenshots: [],
+        
       },
       {
         heading: '7. ElGamal Results',
@@ -250,7 +250,7 @@ The reconstructed value matches the original secret exactly, confirming that the
     id: 'deloitte-job-simulation',
     title: 'Deloitte Job Simulation: Security Log Analysis',
     featured: false,
-    thumbnail: '/images/deloitte-2.png',
+    thumbnail: import.meta.env.BASE_URL + 'images/deloitte-2.png',
 
     shortDescription:
       'Analyzed web server access logs to identify suspicious automated activity, investigate authentication patterns, and assess network exposure in a simulated enterprise environment.',
@@ -338,8 +338,7 @@ The investigation demonstrates how HTTP status codes, request sequences, timesta
 The main takeaway is that suspicious behavior is often identified through a combination of individually inconclusive indicators. Consistent timing, repeated API access, missing browser resources, and recurring authentication failures become more meaningful when examined together.`,
 
         screenshots: [
-          '/images/deloitte-2.png'
-        ],
+  import.meta.env.BASE_URL + 'images/deloitte-2.png' ],
       },
     ],
 
@@ -352,7 +351,7 @@ The main takeaway is that suspicious behavior is often identified through a comb
   id: 'authenticated-encryption-go',
   title: 'Authenticated Encryption in Go: Composition Schemes + Reed-Solomon',
   featured: true,
-  thumbnail: '/images/crypto-1.png',
+  thumbnail: import.meta.env.BASE_URL + 'images/crypto-1.png',
   shortDescription:
     'A Go project comparing Encrypt-and-MAC, Encrypt-then-MAC and MAC-then-Encrypt, each with a Reed-Solomon error-correcting variant, plus AEAD, key exchange and McEliece modules.',
   tags: ['Go', 'Cryptography', 'AES-GCM', 'Reed-Solomon', 'ECDH'],
@@ -360,7 +359,7 @@ The main takeaway is that suspicious behavior is often identified through a comb
     {
       heading: '1. Project Overview',
       body: `This project, written in Go, studies authenticated encryption: how confidentiality and integrity can be combined, and how error-correcting codes can be added on top. It implements and compares the three classic composition methods (Encrypt-and-MAC, Encrypt-then-MAC, MAC-then-Encrypt), each in a standard version and in a version that uses Reed-Solomon error correction. A separate small project (ProiectMAC) demonstrates MAC usage with a 32-byte (AES-256-sized) key.`,
-      screenshots: ['/images/crypto-1.png'],
+      screenshots: [import.meta.env.BASE_URL + 'images/crypto-1.png'],
     },
     {
       heading: '2. Project Structure',
@@ -438,7 +437,7 @@ Possible extensions: test Reed-Solomon with different redundancy levels, compare
     id: 'smart-contract-vulnerability-detection',
     title: 'Detecting Smart Contract Vulnerabilities on Ethereum: Replicating and Extending a Machine Learning Pipeline with Comparative Tool Analysis',
     featured: true,
-    thumbnail: '/images/poza-1.png',
+    thumbnail: import.meta.env.BASE_URL + 'images/poza-1.png',
 
     shortDescription:
       'Replicated the ContractWard machine learning pipeline on the SmartBugs-Wild dataset and investigated how disagreements between Slither and Mythril affect smart contract vulnerability classification.',
@@ -475,8 +474,8 @@ The investigation focuses on three questions:
 The central hypothesis is that automatically generated training labels are not equally reliable across tools, and that differences in labeling can substantially affect classification performance.`,
 
         screenshots: [
-          '/images/poza-1.png'
-        ],
+  import.meta.env.BASE_URL + 'images/poza-1.png'
+],
       },
 
       {
@@ -497,8 +496,8 @@ The dataset decreased from 500 selected contracts to 404 contracts analyzed by b
 This difference in coverage is important when interpreting the results, because the evaluated datasets are not necessarily identical across all stages of the pipeline.`,
 
         screenshots: [
-          '/images/poza-2.png'
-        ],
+  import.meta.env.BASE_URL + 'images/poza-2.png'
+],
       },
 
       {
@@ -519,7 +518,7 @@ The resulting feature matrix contains 389 contracts and 3,385 unique bigram feat
 This representation allows conventional machine learning classifiers to learn patterns associated with the vulnerability labels generated by the static analysis tools.`,
 
         screenshots: [
-          '/images/poza-3.png'
+          import.meta.env.BASE_URL + 'images/poza-3.png'
         ],
       },
 
@@ -541,8 +540,8 @@ Using Slither-generated labels, XGBoost achieved an F1-score of 95.24%, compared
 These results suggest that the ContractWard approach can achieve comparable performance on a smaller, different dataset, although the substantial variation between models highlights the importance of experimental conditions and evaluation methodology.`,
 
         screenshots: [
-          '/images/poza-4.png'
-        ],
+  import.meta.env.BASE_URL + 'images/poza-4.png'
+],
       },
 
       {
@@ -574,7 +573,7 @@ These results demonstrate that the choice of automatic labeling tool can substan
 However, tool disagreement does not establish that one tool is always correct. Slither's higher classification performance may partly reflect differences in label consistency or learnability rather than superior ground-truth accuracy. Human-validated labels would be needed to evaluate that distinction reliably.`,
 
         screenshots: [
-          '/images/poza-5.png'
+          import.meta.env.BASE_URL + 'images/poza-5.png'
         ],
       },
 
@@ -600,7 +599,6 @@ Potential future directions include:
 
 The study also has limitations. The final test set contains only 78 contracts, the dataset decreases in size during preprocessing, and the tools do not necessarily analyze identical subsets. Consequently, the reported metrics should be interpreted as experimental results rather than definitive estimates of real-world detection performance.`,
 
-        screenshots: [],
       },
     ],
 
